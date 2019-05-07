@@ -42,8 +42,8 @@ DiLeptonSelectionData = cms.PSet(
 )
 
 METSelection = cms.PSet(
-    minMET = cms.double(-1),
-    maxMET = cms.double(800),
+    minMET = cms.double(20.),
+    maxMET = cms.double(100000.),
 )
 
 DiLeptonMETSelection = cms.PSet(
@@ -99,7 +99,7 @@ checkNoTriggers= cms.PSet(
 
 filtersData= cms.PSet(
     filters=cms.vstring("Flag_goodVertices",
-                        "Flag_globalTightHalo2016Filter",
+                        "Flag_globalSuperTightHalo2016Filter",
                         "Flag_HBHENoiseFilter",
                         "Flag_HBHENoiseIsoFilter",
                         "Flag_EcalDeadCellTriggerPrimitiveFilter",
@@ -112,7 +112,7 @@ filtersData= cms.PSet(
 
 filtersMC= cms.PSet(
     filters=cms.vstring("Flag_goodVertices",
-                        "Flag_globalTightHalo2016Filter",
+                        "Flag_globalSuperTightHalo2016Filter",
                         "Flag_HBHENoiseFilter",
                         "Flag_HBHENoiseIsoFilter",
                         "Flag_EcalDeadCellTriggerPrimitiveFilter",

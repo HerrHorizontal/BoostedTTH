@@ -6,6 +6,9 @@ CMSSW tools for analyzing TTH events with boosted objects
 
 ## Installation
 Follow These Steps:
+If it is your first time setting up a CMSSW release CMSSW will create a hidden .cmsgit-cache directory in your home directory that can grow quite large. Therefore it is a good idea to specify the path of this directory to be on the dust (or other high volume storage)
+Do for example:
+export CMSSW_GIT_REFERENCE=/nfs/dust/cms/user/$USER/.cmsgit-cache
 
     # setup environment
     export SCRAM_ARCH="slc6_amd64_gcc630"
@@ -24,12 +27,12 @@ Follow These Steps:
 
     git cms-merge-topic cms-egamma:EgammaPostRecoTools_940 #just adds in an extra file to have a setup function to make things easier
     #git cms-merge-topic cms-egamma:Egamma80XMiniAODV2_946 #adds the c++ changes necessary to enable 2016 scale & smearing corrections (is loaded per default)
-    
+    git cms-merge-topic cms-met:METFixEE2017_949_v2 # EE noise mitigation for 2017 data
     
     # install common classifier
     mkdir TTH
     cd TTH
-    git clone https://gitlab.cern.ch/ttH/CommonClassifier.git
+    git clone https://gitlab.cern.ch/ttH/CommonClassifier.git -b master
     source CommonClassifier/setup/install_mem.sh
     # use recent version of LHAPDF header
     sed -i '6i#include "LHAPDF/LHAPDF.h"' MEIntegratorStandalone/interface/Integrand.h

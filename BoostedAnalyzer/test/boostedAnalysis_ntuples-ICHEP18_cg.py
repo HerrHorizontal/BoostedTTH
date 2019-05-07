@@ -18,7 +18,7 @@ options.register( "skipEvents", 0, VarParsing.multiplicity.singleton, VarParsing
 options.register( "isData", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "is it data or MC?" )
 options.register( "isBoostedMiniAOD", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "has the file been prepared with the BoostedProducer ('custom' MiniAOD)?" )
 options.register( "generatorName", "POWHEG", VarParsing.multiplicity.singleton, VarParsing.varType.string, "'POWHEG','aMC', 'MadGraph' or 'pythia8'" )
-options.register( "globalTag", "94X_mc2017_realistic_v13", VarParsing.multiplicity.singleton, VarParsing.varType.string, "global tag" )
+options.register( "globalTag", "94X_mc2017_realistic_v14", VarParsing.multiplicity.singleton, VarParsing.varType.string, "global tag" )
 options.register( "useJson",False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "apply the json filter (on the grid there are better ways to do this)" )
 options.register( "additionalSelection","NONE", VarParsing.multiplicity.singleton, VarParsing.varType.string, "addition Selection to use for this sample" )
 datasets=['NA','mu','el','elel','elmu','mumu']
@@ -42,7 +42,7 @@ if options.maxEvents is -1: # maxEvents is set in VarParsing class by default to
     options.maxEvents = 10000 # reset for testing
 
 if options.isData:
-    options.globalTag="94X_dataRun2_ReReco_EOY17_v6"
+    options.globalTag="94X_dataRun2_v6"
 
 if not options.inputFiles:
     if not options.isData:
@@ -158,8 +158,11 @@ if options.isData:
   
 if options.recorrectMET:
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-    runMetCorAndUncFromMiniAOD(process, isData=options.isData)
-
+    runMetCorAndUncFromMiniAOD(process,
+                               isData=options.isData,
+                               fixEE2017 = True,
+                               fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} 
+                               )
 #METCollection      = cms.InputTag("slimmedMETs", "", process.name_())
 
 ### Electron scale and smearing corrections ###  
@@ -245,6 +248,8 @@ process.SelectedJetProducerAK4=process.SelectedJetProducer.clone()
 process.SelectedJetProducerAK4.jets=cms.InputTag('patSmearedJetsAK4',"",process.name_())
 process.SelectedJetProducerAK4.applyCorrection=False
 process.SelectedJetProducerAK4.ptMins=[20,30]
+if options.ProduceMemNtuples==True:
+    process.SelectedJetProducerAK4.ptMins=[10,30]
 process.SelectedJetProducerAK4.etaMaxs=[2.4,2.4]
 process.SelectedJetProducerAK4.collectionNames=["selectedJetsLooseAK4","selectedJetsAK4"]
 process.SelectedJetProducerAK4.systematics=[""]
@@ -399,7 +404,8 @@ process.BoostedAnalyzer.selectionNames = [
 "FilterSelection",
 "VertexSelection",
 "LeptonSelection",
-"JetTagSelection"
+"JetTagSelection",
+"METSelection"
 ]
 if options.additionalSelection!="NONE":
   process.BoostedAnalyzer.selectionNames+=cms.vstring(options.additionalSelection)
@@ -417,7 +423,8 @@ if options.isData:
 else:
   process.BoostedAnalyzer.processorNames=cms.vstring(
   "WeightProcessor",
-  "MCMatchVarProcessor",
+#  "MCMatchVarProcessor",
+  "essentialMCMatchVarProcessor",
   "essentialBasicVarProcessor",
   "essentialMVAVarProcessor",
  "BDTVarProcessor",

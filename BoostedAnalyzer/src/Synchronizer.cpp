@@ -38,14 +38,14 @@ Synchronizer::~Synchronizer (){
 
 
 void Synchronizer::DumpSyncExeHeader(std::ostream &out, bool addExtendedInfo){
-    out << "run,lumi,event,is_e,is_mu,is_ee,is_emu,is_mumu,n_jets,n_btags,lep1_pt,lep1_eta,lep1_iso,lep1_pdgId,lep1_idSF,lep1_isoSF,lep1_seed,lep2_pt,lep2_eta,lep2_iso,lep2_pdgId,lep2_idSF,lep2_isoSF,lep2_seed,jet1_pt,jet1_eta,jet1_phi,jet1_jesSF,jet1_jesSF_up,jet1_jesSF_down,jet1_jesSF_PileUpDataMC_down,jet1_jesSF_RelativeFSR_up,jet1_jerSF_nominal,jet1_csv,jet1_PUJetId,jet1_PUJetDiscriminant,jet1_seed,jet2_pt,jet2_eta,jet2_phi,jet2_jesSF,jet2_jesSF_up,jet2_jesSF_down,jet2_jesSF_PileUpDataMC_down,jet2_jesSF_RelativeFSR_up,jet2_jerSF_nominal,jet2_csv,jet2_PUJetId,jet2_PUJetDiscriminant,jet2_seed,MET_pt,MET_phi,mll,ttHFCategory,ttHFGenFilterTag,n_interactions,puWeight,csvSF,csvSF_lf_up,csvSF_hf_down,csvSF_cErr1_down,pdf_up,pdf_down,me_up,me_down,triggerSF,top_pt_weight,bdt_output,dnn_ttH_output,dnn_ttbb_output";
+    out << "run,lumi,event,is_e,is_mu,is_ee,is_emu,is_mumu,n_jets,n_btags,lep1_pt,lep1_eta,lep1_iso,lep1_pdgId,lep1_idSF,lep1_isoSF,lep1_seed,lep2_pt,lep2_eta,lep2_iso,lep2_pdgId,lep2_idSF,lep2_isoSF,lep2_seed,jet1_pt,jet1_eta,jet1_phi,jet1_jesSF,jet1_jesSF_up,jet1_jesSF_down,jet1_jesSF_PileUpDataMC_down,jet1_jesSF_RelativeFSR_up,jet1_jerSF_nominal,jet1_csv,jet1_PUJetId,jet1_PUJetDiscriminant,jet1_seed,jet2_pt,jet2_eta,jet2_phi,jet2_jesSF,jet2_jesSF_up,jet2_jesSF_down,jet2_jesSF_PileUpDataMC_down,jet2_jesSF_RelativeFSR_up,jet2_jerSF_nominal,jet2_csv,jet2_PUJetId,jet2_PUJetDiscriminant,jet2_seed,MET_pt,MET_phi,mll,ttHFCategory,ttHFGenFilterTag,n_interactions,puWeight,csvSF,csvSF_lf_up,csvSF_hf_down,csvSF_cErr1_down,pdf_up,pdf_down,me_up,me_down,isr_up,isr_down,fsr_up,fsr_down,triggerSF,top_pt_weight,bdt_output,dnn_ttH_output,dnn_ttbb_output";
     if(addExtendedInfo){
 	out << ",jet3_pt,jet3_eta,jet3_csv,jet4_pt,jet4_eta,jet4_csv,jet5_pt,jet5_eta,jet5_csv,jet6_pt,jet6_eta,jet6_csv,jet7_pt,jet7_eta,jet7_csv";
 	out << ",trig_el,trig_mu,trig_elel,trig_elmu,trig_mumu";
 	out << ",n_leps_tight,n_leps_dl,n_leps_loose,rho";
 	out << ",raw_el1_pt,raw_el1_eta,raw_el1_iso,raw_el1_pdgId,raw_el2_pt,raw_el2_eta,raw_el2_iso,raw_el2_pdgId";
 	out << ",raw_mu1_pt,raw_mu1_eta,raw_mu1_iso,raw_mu1_pdgId,raw_mu2_pt,raw_mu2_eta,raw_mu2_iso,raw_mu2_pdgId";
-	out << ",pass_FilterSelection,pass_VertexSelection,pass_LeptonSelection,pass_DiLeptonSelection";
+	out << ",pass_FilterSelection,pass_VertexSelection,pass_LeptonSelection,pass_DiLeptonSelection,pass_METSelection";
 	    
     }
     out << endl;
@@ -148,6 +148,11 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
     float me_up=-1;
     float me_down=-1;
     
+    float isr_up=-1;
+    float isr_down=-1;
+    float fsr_up=-1;
+    float fsr_down=-1;
+    
     float triggerSF=-1;
     float top_pt_weight=-1;
     float bdt_output=-1;
@@ -198,6 +203,7 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
     int pass_VertexSelection=-1;
     int pass_LeptonSelection=-1;
     int pass_DiLeptonSelection=-1;
+    int pass_METSelection=-1;
     
     // hack to use loose isolation scale factors for muons in case of dilepton channel
     if(int(input.selectedElectronsLoose.size()+input.selectedMuonsLoose.size())>1) {
@@ -285,6 +291,7 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
 	    if(i==0) pass_FilterSelection=0;
 	    if(i==1) pass_VertexSelection=0;
 	    if(i==2) pass_LeptonSelection=0;
+            if(i==3) pass_METSelection=0;
 
 	    break;
 	}
@@ -292,6 +299,7 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
 	    if(i==0) pass_FilterSelection=1;
 	    if(i==1) pass_VertexSelection=1;
 	    if(i==2) pass_LeptonSelection=1;
+            if(i==3) pass_METSelection=1;
 	}
     }
     if(is_SL){
@@ -512,6 +520,10 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
     if(input.weights.count("Weight_TopPt")>0) top_pt_weight=input.weights.at("Weight_TopPt");
     if(input.weights.count("Weight_LHA_306000_up")>0) pdf_up=input.weights.at("Weight_LHA_306000_up");
     if(input.weights.count("Weight_LHA_306000_down")>0) pdf_down=input.weights.at("Weight_LHA_306000_down");
+    if(input.weights.count("GenWeight_6")>0) isr_up=input.weights.at("GenWeight_6");
+    if(input.weights.count("GenWeight_7")>0) fsr_up=input.weights.at("GenWeight_7");
+    if(input.weights.count("GenWeight_8")>0) isr_down=input.weights.at("GenWeight_8");
+    if(input.weights.count("GenWeight_9")>0) fsr_down=input.weights.at("GenWeight_9");
     
     if(is_SL) {
         std::vector<TLorentzVector> lepvecs=BoostedUtils::GetTLorentzVectors(BoostedUtils::GetLepVecs(input.selectedElectrons,input.selectedMuons));
@@ -542,9 +554,9 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
         add_features.push_back(eth_blr_trans);
         add_features.push_back(0.);
         bdt_output=bdtclassifier->GetBDTOutput(lepvecs, jetvecs, jetcsvs,metP4);
-        DNNOutput dnn_output = sldnnclassifier->evaluate(jetvecs,jetcsvs_dnn,lepvecs[0],metP4,add_features);
-        dnn_ttbb_output = dnn_output.ttbb();
-        dnn_ttH_output = dnn_output.ttH();
+        //DNNOutput dnn_output = sldnnclassifier->evaluate(jetvecs,jetcsvs_dnn,lepvecs[0],metP4,add_features);
+        //dnn_ttbb_output = dnn_output.ttbb();
+        //dnn_ttH_output = dnn_output.ttH();
     }
     
     else if(is_DL) {
@@ -584,9 +596,9 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
         add_features.push_back(eth_blr_trans);
         add_features.push_back(0.);
         bdt_output=dlbdtclassifier->GetBDTOutput(lepvecs,lepcharges,jetvecs,jetcsvs,metP4);
-        DNNOutput dnn_output = dldnnclassifier->evaluate(jetvecs,jetcsvs_dnn,lepvecs,metP4,add_features);
-        dnn_ttbb_output = dnn_output.ttbb();
-        dnn_ttH_output = dnn_output.ttH();
+        //DNNOutput dnn_output = dldnnclassifier->evaluate(jetvecs,jetcsvs_dnn,lepvecs,metP4,add_features);
+        //dnn_ttbb_output = dnn_output.ttbb();
+        //dnn_ttH_output = dnn_output.ttH();
     }
     
 
@@ -616,7 +628,7 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
 %.4f,\
 %.4f,%.4f,%.4f,%.4f,\
 %.4f,%.4f,\
-%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f")%
+%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f")%
 	run% lumi% event%
 	is_e% is_mu% is_ee% is_emu% is_mumu%
 	n_jets% n_btags%
@@ -629,14 +641,14 @@ void Synchronizer::DumpSyncExe(const InputCollections& input,
 	puWeight%
 	csvSF% csvSF_lf_up% csvSF_hf_down% csvSF_cErr1_down%
 	pdf_up% pdf_down%
-	me_up% me_down% triggerSF% top_pt_weight% bdt_output% dnn_ttH_output% dnn_ttbb_output;
+	me_up% me_down% isr_up% isr_down% fsr_up% fsr_down% triggerSF% top_pt_weight% bdt_output% dnn_ttH_output% dnn_ttbb_output;
 	if(addExtendedInfo){
 	    out << boost::format(",%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f")%jet3_pt%jet3_eta%jet3_csv%jet4_pt%jet4_eta%jet4_csv%jet5_pt%jet5_eta%jet5_csv%jet6_pt%jet6_eta%jet6_csv%jet7_pt%jet7_eta%jet7_csv;
 	    out << boost::format(",%i,%i,%i,%i,%i")%trig_el%trig_mu%trig_elel%trig_elmu%trig_mumu;
 	    out << boost::format(",%i,%i,%i,%.4f")%n_leps_tight%n_leps_dl%n_leps_loose%rho;
 	    out << boost::format(",%.4f,%.4f,%.4f,%i,%.4f,%.4f,%.4f,%i")%raw_el1_pt%raw_el1_eta%raw_el1_iso%raw_el1_pdgId%raw_el2_pt%raw_el2_eta%raw_el2_iso%raw_el2_pdgId;
 	    out << boost::format(",%.4f,%.4f,%.4f,%i,%.4f,%.4f,%.4f,%i")%raw_mu1_pt%raw_mu1_eta%raw_mu1_iso%raw_mu1_pdgId%raw_mu2_pt%raw_mu2_eta%raw_mu2_iso%raw_mu2_pdgId;
-	    out << boost::format(",%i,%i,%i,%i")%pass_FilterSelection%pass_VertexSelection%pass_LeptonSelection%pass_DiLeptonSelection;
+	    out << boost::format(",%i,%i,%i,%i,%i")%pass_FilterSelection%pass_VertexSelection%pass_LeptonSelection%pass_DiLeptonSelection%pass_METSelection;
 	}
 	out<<"\n";
     }
@@ -692,6 +704,7 @@ void Synchronizer::Init(std::string filename, const std::vector<std::string>& je
     selectionsSL.push_back(new FilterSelection(iConfig));
     selectionsSL.push_back(new VertexSelection());
     selectionsSL.push_back(new LeptonSelection(iConfig));
+    selectionsSL.push_back(new METSelection(20.,99999.));
     selectionsSL.push_back(new JetTagSelection(4,2));
     for (auto &c : cutflowsSL){
 	for (auto &s : selectionsSL){
